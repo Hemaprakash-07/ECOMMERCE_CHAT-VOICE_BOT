@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NexPC — AI-Powered PC Components Store | CPU, GPU, RAM, SSD & More</title>
+  <meta name="description"
+        content="Shop premium PC components — CPUs, GPUs, RAM, SSDs, Motherboards — with AI-powered chatbot support, real-time recommendations, and expert compatibility checks.">
+  <meta name="keywords" content="PC components, CPU, GPU, RAM, SSD, Motherboard, gaming PC, build PC, online PC store">
+
+  <!-- Open Graph -->
+  <meta property="og:title"       content="NexPC — AI-Powered PC Components Store">
+  <meta property="og:description" content="Shop premium PC components with AI chatbot support.">
+  <meta property="og:type"        content="website">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+
+  <!-- Font Awesome (minimal CDN — only for icons we need) -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     NAVBAR
+════════════════════════════════════════════════════════ -->
+<nav class="navbar" id="mainNav" role="navigation" aria-label="Main navigation">
+
+  <!-- Logo -->
+  <a href="/" class="nav-logo" aria-label="NexPC Home">
+    <div class="nav-logo-icon">🖥️</div>
+    <span class="nav-logo-text">Nex<span>PC</span></span>
+  </a>
+
+  <!-- Search -->
+  <div class="nav-search">
+    <span class="search-icon">🔍</span>
+    <input type="search" id="navSearch" placeholder="Search CPU, GPU, RAM, SSD…"
+           aria-label="Search products" autocomplete="off">
+  </div>
+
+  <!-- Nav links -->
+  <div class="nav-links">
+    <a href="#products"       class="nav-link">Products</a>
+    <a href="#about"          class="nav-link">About</a>
+    <a href="#orders-returns" class="nav-link">Orders &amp; Returns</a>
+    <a href="/cart"           class="nav-link nav-cart" aria-label="View cart">
+      🛒 <span class="cart-badge" style="display:none">0</span>
+    </a>
+    <a href="#contact"        class="nav-link">Contact</a>
+    <!-- Auth area (populated by JS) -->
+    <span id="navAuthArea" style="display:contents">
+      <a href="/login"    class="nav-link">Sign In</a>
+      <a href="/register" class="btn-nav-auth">Register →</a>
+    </span>
+  </div>
+
+  <!-- Hamburger -->
+  <button class="nav-hamburger" aria-label="Toggle menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- Mobile nav drawer -->
+<div class="mobile-nav" role="menu">
+  <a href="#products"       class="nav-link" role="menuitem">Products</a>
+  <a href="#about"          class="nav-link" role="menuitem">About</a>
+  <a href="#orders-returns" class="nav-link" role="menuitem">Orders &amp; Returns</a>
+  <a href="/cart"           class="nav-link" role="menuitem">🛒 Cart</a>
+  <a href="#contact"        class="nav-link" role="menuitem">Contact</a>
+  <a href="/login"          class="nav-link" role="menuitem">Sign In</a>
+  <a href="/register"       class="btn-nav-auth" style="text-align:center;margin-top:8px" role="menuitem">Register →</a>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     HERO
+════════════════════════════════════════════════════════ -->
+<section class="hero" id="home" aria-label="Hero section">
+
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      AI-Powered PC Component Store
+    </div>
+
+    <h1 class="hero-title">
+      Build Your<br>
+      <span class="grad">Dream PC</span><br>
+      With Confidence
+    </h1>
+
+    <p class="hero-desc">
+      Shop premium CPUs, GPUs, RAM, SSDs, and motherboards — guided by our
+      intelligent AI chatbot that recommends compatible components, tracks
+      your orders, and answers every question in English or Tamil.
+    </p>
+
+    <div class="hero-actions">
+      <a href="#products" class="btn-primary">
+        🛒 Shop Components
+      </a>
+      <a href="#contact" class="btn-outline">
+        🤖 Ask AI Assistant
+      </a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat-item">
+        <span class="stat-value">500<span>+</span></span>
+        <span class="stat-label">PC Components</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">24/7</span>
+        <span class="stat-label">AI Support</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">30<span>d</span></span>
+        <span class="stat-label">Free Returns</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating product cards (decorative) -->
+  <div class="hero-visual" aria-hidden="true">
+    <div class="hero-visual-inner"></div>
+    <div class="float-cards">
+      <div class="float-card">
+        <div class="float-card-icon" style="background:rgba(124,58,237,0.15)">🔲</div>
+        <div class="float-card-info">
+          <div class="float-card-name">Intel Core i9-14900K</div>
+          <div class="float-card-price">₹39,999</div>
+        </div>
+      </div>
+      <div class="float-card">
+        <div class="float-card-icon" style="background:rgba(6,182,212,0.15)">🎮</div>
+        <div class="float-card-info">
+          <div class="float-card-name">NVIDIA RTX 4090</div>
+          <div class="float-card-price">₹1,49,999</div>
+        </div>
+      </div>
+      <div class="float-card">
+        <div class="float-card-icon" style="background:rgba(16,185,129,0.15)">💾</div>
+        <div class="float-card-info">
+          <div class="float-card-name">Corsair DDR5 32GB</div>
+          <div class="float-card-price">₹8,999</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     FEATURES BAND
+════════════════════════════════════════════════════════ -->
+<section class="section-features" aria-label="Key features">
+  <div style="max-width:1200px;margin:0 auto;text-align:center">
+    <p style="font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-light);margin-bottom:10px">
+      Why NexPC?
+    </p>
+    <h2 class="section-title">Everything you need, <span>in one place</span></h2>
+  </div>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🤖</div>
+      <h3 class="feature-title">AI Chatbot Support</h3>
+      <p class="feature-desc">Get instant answers in English or Tamil. Ask for build recommendations, compatibility checks, or order status.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔧</div>
+      <h3 class="feature-title">Compatibility Checks</h3>
+      <p class="feature-desc">Our AI verifies that every component you pick works together — socket, power, and slot compatibility guaranteed.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🚚</div>
+      <h3 class="feature-title">Fast Shipping</h3>
+      <p class="feature-desc">Metro cities get delivery in 1–2 days. Free standard shipping on orders above ₹999 across India.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🛡️</div>
+      <h3 class="feature-title">Genuine Warranty</h3>
+      <p class="feature-desc">All products are retail-box with full manufacturer warranty. CPUs & GPUs carry 3-year coverage.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">↩️</div>
+      <h3 class="feature-title">30-Day Returns</h3>
+      <p class="feature-desc">Hassle-free returns within 30 days. Defective items can be exchanged within 7 days of delivery.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💳</div>
+      <h3 class="feature-title">Flexible Payments</h3>
+      <p class="feature-desc">UPI, Cards, Net Banking, COD. No-cost EMI available on orders above ₹15,000 for 6/12/24 months.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     PRODUCTS SECTION
+════════════════════════════════════════════════════════ -->
+<section class="section-products" id="products" aria-label="Products">
+
+  <div class="section-header">
+    <div>
+      <h2 class="section-title">PC <span>Components</span></h2>
+      <p class="section-sub">Curated selection of the best hardware for every build & budget</p>
+    </div>
+    <a href="#" class="view-all">View All →</a>
+  </div>
+
+  <!-- Category filter tabs -->
+  <div class="cat-tabs" id="catTabs" role="tablist" aria-label="Product categories">
+    <!-- Rendered by JS -->
+  </div>
+
+  <!-- Products grid -->
+  <div class="products-grid" id="productsGrid" role="list">
+    <!-- Populated by JS / API -->
+  </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     ABOUT SECTION
+════════════════════════════════════════════════════════ -->
+<section aria-label="About NexPC">
+  <div id="about">
+    <div class="about-left">
+      <p class="section-label">About NexPC</p>
+      <h2>Revolutionizing How India<br>Builds PCs</h2>
+      <p>
+        NexPC was built for every PC enthusiast — from the first-time builder to the
+        seasoned overclocker. We combine a hand-picked catalog of genuine components
+        with an AI-powered chatbot that understands your budget, use-case, and language.
+      </p>
+      <p>
+        Whether you're building a gaming rig, a workstation, or a budget-friendly office
+        machine, our intelligent assistant recommends perfectly compatible parts, checks
+        stock in real-time, and walks you through every step.
+      </p>
+      <a href="/register" class="btn-primary" style="margin-top:8px;display:inline-flex">
+        🚀 Get Started Free
+      </a>
+    </div>
+
+    <div class="about-right">
+      <div class="about-stat-card">
+        <div class="about-stat-num">50,000+</div>
+        <p class="about-stat-label">Happy builders who trusted NexPC for their dream builds</p>
+      </div>
+      <div class="about-stat-card">
+        <div class="about-stat-num">500+</div>
+        <p class="about-stat-label">Genuine PC components from top brands</p>
+      </div>
+      <div class="about-stat-card">
+        <div class="about-stat-num">4.8★</div>
+        <p class="about-stat-label">Average customer rating across all products</p>
+      </div>
+      <div class="about-stat-card">
+        <div class="about-stat-num">24/7</div>
+        <p class="about-stat-label">AI chatbot available in English &amp; Tamil</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     ORDERS & RETURNS
+════════════════════════════════════════════════════════ -->
+<section id="orders-returns" aria-label="Orders and Returns">
+
+  <div style="max-width:1200px;margin:0 auto;text-align:center;padding:0 5%">
+    <p style="font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-light);margin-bottom:10px">
+      Customer Support
+    </p>
+    <h2 class="section-title">Orders &amp; <span>Returns</span></h2>
+    <p class="section-sub" style="margin-top:8px">
+      Everything you need to know about your purchase
+    </p>
+  </div>
+
+  <div class="orders-grid">
+    <div class="policy-card">
+      <div class="policy-icon">📦</div>
+      <h3>Order Information</h3>
+      <p>Track and manage all your orders from one place. We notify you at every step — from confirmation to delivery.</p>
+      <ul>
+        <li>Real-time order status updates via email &amp; chatbot</li>
+        <li>Track using your order number below</li>
+        <li>Orders can be cancelled within 24 hours if unshipped</li>
+        <li>Invoice available for every order</li>
+      </ul>
+    </div>
+
+    <div class="policy-card">
+      <div class="policy-icon">↩️</div>
+      <h3>Return &amp; Refund Policy</h3>
+      <p>We stand behind every product we sell. If something's wrong, we'll make it right — fast.</p>
+      <ul>
+        <li>30-day return window for all PC components</li>
+        <li>Defective items: exchange within 7 days</li>
+        <li>Items must be in original packaging</li>
+        <li>Refunds processed within 5–7 business days</li>
+        <li>Damaged-in-transit: full replacement, no questions</li>
+      </ul>
+    </div>
+
+    <div class="policy-card">
+      <div class="policy-icon">🚚</div>
+      <h3>Shipping Policy</h3>
+      <p>We ship pan-India with reliable logistics partners. Most orders are dispatched within 24 hours of placement.</p>
+      <ul>
+        <li>Standard shipping: 3–5 business days</li>
+        <li>Express shipping: 1–2 days (metro cities)</li>
+        <li>Free shipping on orders above ₹999</li>
+        <li>Fragile items packed with extra care</li>
+      </ul>
+    </div>
+
+    <div class="policy-card">
+      <div class="policy-icon">🛡️</div>
+      <h3>Warranty Policy</h3>
+      <p>Every product ships with the manufacturer's full retail warranty. We help you claim warranty hassle-free.</p>
+      <ul>
+        <li>CPUs &amp; GPUs — 3-year manufacturer warranty</li>
+        <li>RAM — Lifetime warranty</li>
+        <li>SSDs — 5-year warranty</li>
+        <li>Motherboards — 3-year warranty</li>
+        <li>PSUs — 5–10 year depending on tier</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Order Tracker -->
+  <div class="tracker-cta">
+    <h3>🔍 Track Your Order</h3>
+    <p>Enter your order number to see real-time status and delivery info.</p>
+    <div class="tracker-input-wrap">
+      <input type="text" id="orderInput" placeholder="e.g. ORD-20240001"
+             aria-label="Order number">
+      <button class="btn-track" id="btnTrack">Track</button>
+    </div>
+    <div id="trackerResult" class="tracker-result" aria-live="polite"></div>
+  </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     CONTACT SECTION
+════════════════════════════════════════════════════════ -->
+<section aria-label="Contact us">
+  <div id="contact">
+
+    <div class="contact-left">
+      <h2>Get in Touch</h2>
+      <p>
+        Have a question about a product, need a build recommendation, or want to
+        resolve an issue? Reach us anytime — or just ask our AI chatbot at the
+        bottom-right corner of the page!
+      </p>
+      <div class="contact-info">
+        <div class="contact-item">
+          <div class="ci-icon">📍</div>
+          <span>123 Tech Park, OMR, Chennai — 600 097, Tamil Nadu</span>
+        </div>
+        <div class="contact-item">
+          <div class="ci-icon">📧</div>
+          <a href="mailto:support@nexpc.in">support@nexpc.in</a>
+        </div>
+        <div class="contact-item">
+          <div class="ci-icon">📞</div>
+          <a href="tel:+918001234567">+91 800 123 4567</a>
+        </div>
+        <div class="contact-item">
+          <div class="ci-icon">🕐</div>
+          <span>Mon–Sat, 9 AM – 8 PM IST (AI bot: 24/7)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="contact-form" id="contactFormWrap">
+      <h3>Send us a Message</h3>
+      <p style="font-size:13px;color:var(--text-muted)">
+        We typically reply within 24 hours.
+      </p>
+      <form id="contactForm" novalidate>
+        <div class="form-field">
+          <label for="cName">Your Name</label>
+          <input type="text" id="cName" name="name" placeholder="Arjun Kumar" required>
+        </div>
+        <div class="form-field">
+          <label for="cEmail">Email Address</label>
+          <input type="email" id="cEmail" name="email" placeholder="you@example.com" required>
+        </div>
+        <div class="form-field">
+          <label for="cSubject">Subject</label>
+          <select id="cSubject" name="subject">
+            <option value="">Select a topic…</option>
+            <option value="product">Product Query</option>
+            <option value="order">Order Issue</option>
+            <option value="return">Return / Refund</option>
+            <option value="compatibility">PC Compatibility</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="cMsg">Message</label>
+          <textarea id="cMsg" name="message" rows="4"
+                    placeholder="Describe your query in detail…" required></textarea>
+        </div>
+        <button type="submit" class="btn-send">
+          📬 Send Message
+        </button>
+      </form>
+      <div class="form-success">
+        ✅ Message sent! We'll get back to you within 24 hours.
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════════════════ -->
+<footer class="footer" id="footer" role="contentinfo">
+  <div class="footer-grid">
+
+    <!-- Brand col -->
+    <div class="footer-brand">
+      <a href="/" class="footer-logo">
+        <div class="nav-logo-icon">🖥️</div>
+        <span class="nav-logo-text">Nex<span>PC</span></span>
+      </a>
+      <p>
+        India's AI-powered PC components store. Shop with confidence — our intelligent
+        assistant helps you build the perfect machine every time.
+      </p>
+      <div class="footer-socials">
+        <a href="#" class="social-btn" aria-label="GitHub">🐙</a>
+        <a href="#" class="social-btn" aria-label="Twitter">🐦</a>
+        <a href="#" class="social-btn" aria-label="YouTube">▶️</a>
+        <a href="#" class="social-btn" aria-label="Instagram">📸</a>
+      </div>
+    </div>
+
+    <!-- Products col -->
+    <nav class="footer-col" aria-label="Product categories">
+      <h4>Products</h4>
+      <ul>
+        <li><a href="#products">CPUs / Processors</a></li>
+        <li><a href="#products">Graphics Cards</a></li>
+        <li><a href="#products">RAM / Memory</a></li>
+        <li><a href="#products">SSD &amp; Storage</a></li>
+        <li><a href="#products">Motherboards</a></li>
+        <li><a href="#products">Power Supplies</a></li>
+      </ul>
+    </nav>
+
+    <!-- Support col -->
+    <nav class="footer-col" aria-label="Support links">
+      <h4>Support</h4>
+      <ul>
+        <li><a href="#orders-returns">Order Tracking</a></li>
+        <li><a href="#orders-returns">Return Policy</a></li>
+        <li><a href="#orders-returns">Shipping Info</a></li>
+        <li><a href="#orders-returns">Warranty</a></li>
+        <li><a href="#contact">Contact Us</a></li>
+      </ul>
+    </nav>
+
+    <!-- Company col -->
+    <nav class="footer-col" aria-label="Company links">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#about">About NexPC</a></li>
+        <li><a href="/register">Create Account</a></li>
+        <li><a href="/login">Sign In</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms of Service</a></li>
+      </ul>
+    </nav>
+
+  </div>
+
+  <div class="footer-bottom">
+    <span>© 2024 NexPC. All rights reserved.</span>
+    <span>
+      Made with ❤️ in Chennai &nbsp;|&nbsp;
+      AI-Powered by <a href="#">Groq + Pinecone</a>
+    </span>
+  </div>
+</footer>
+
+
+
+
+
+<!-- ── Toast container ───────────────────────────────────── -->
+<div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+<!-- ── Back to top ───────────────────────────────────────── -->
+<button class="back-top" aria-label="Back to top">↑</button>
+
+
+<!-- ── Scripts ───────────────────────────────────────────── -->
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
+
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — NexPC | AI-Powered PC Component Store</title>
+  <meta name="description" content="Log in to NexPC — The AI-powered PC components store with intelligent chatbot support.">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+</head>
+<body>
+
+  <div class="auth-container">
+
+    <!-- Brand -->
+    <div class="auth-brand">
+      <a href="/" class="auth-brand-logo">
+        <div class="auth-brand-icon">🖥️</div>
+        <span class="auth-brand-name">Nex<span>PC</span></span>
+      </a>
+    </div>
+
+    <!-- Card -->
+    <div class="auth-card">
+      <h1>Welcome back</h1>
+      <p class="auth-subtitle">Sign in to your account to continue shopping &amp; track your orders.</p>
+
+      <!-- Global alert -->
+      <div id="authAlert" class="auth-alert" role="alert">
+        <span class="alert-icon">ℹ️</span>
+        <span class="alert-msg"></span>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" class="auth-form" novalidate autocomplete="on">
+
+        <!-- Email -->
+        <div class="form-group" id="grpEmail">
+          <label for="email">Email Address</label>
+          <div class="input-wrapper">
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="you@example.com"
+              autocomplete="email"
+              required
+            >
+            <span class="input-icon">📧</span>
+          </div>
+          <span class="field-msg"></span>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group" id="grpPassword">
+          <label for="password">Password</label>
+          <div class="input-wrapper">
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              class="has-toggle"
+              required
+            >
+            <span class="input-icon">🔒</span>
+            <button type="button" class="toggle-pwd" aria-label="Toggle password visibility">👁️</button>
+          </div>
+          <span class="field-msg"></span>
+        </div>
+
+        <!-- Extras -->
+        <div class="form-extras">
+          <label class="checkbox-wrap">
+            <input type="checkbox" id="rememberMe" name="remember">
+            Remember me
+          </label>
+          <a href="#" class="forgot-link">Forgot password?</a>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" id="submitBtn" class="btn-auth">
+          <span class="btn-text">Sign In</span>
+          <span class="btn-spinner"></span>
+        </button>
+
+      </form>
+
+      <!-- Divider -->
+      <div class="auth-divider" style="margin-top: 24px;">or</div>
+
+      <!-- Switch -->
+      <p class="auth-switch">
+        Don't have an account? <a href="/register">Create one free →</a>
+      </p>
+    </div>
+
+    <!-- Terms -->
+    <p class="terms-text" style="margin-top:20px;">
+      By signing in you agree to our
+      <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+    </p>
+
+  </div>
+
+  <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
+</body>
+</html>

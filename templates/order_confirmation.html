@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Confirmed — NexPC</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}">
+</head>
+<body>
+<nav class="navbar">
+  <a href="/" class="nav-logo">
+    <div class="nav-logo-icon">🖥️</div>
+    <span class="nav-logo-text">Nex<span>PC</span></span>
+  </a>
+  <div class="nav-links">
+    <a href="/"       class="nav-link">Home</a>
+    <a href="/orders" class="nav-link">My Orders</a>
+    <a href="/cart"   class="nav-link nav-cart">🛒</a>
+  </div>
+</nav>
+
+<div class="confirm-page">
+  <div class="confirm-card">
+    <div class="confirm-icon">🎉</div>
+    <h1>Order Placed Successfully!</h1>
+    <p>
+      Thank you for shopping with NexPC. Your order has been confirmed and
+      will be dispatched within 24 hours. You'll receive tracking info via email.
+    </p>
+
+    <div class="confirm-order-num" id="confirmOrderNum">
+      {{ order_number or "—" }}
+    </div>
+
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:24px">
+      Keep this order number handy to track your shipment.
+    </p>
+
+    <div class="confirm-actions">
+      <a href="/orders" class="btn-primary">📦 View My Orders</a>
+      <a href="/"       class="btn-outline">🛒 Continue Shopping</a>
+    </div>
+
+    <div style="margin-top:32px;padding-top:24px;border-top:1px solid var(--border)">
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px">
+        Need help with your order?
+      </p>
+      <a href="/#contact" class="btn-outline" style="font-size:13px;padding:9px 18px">
+        📬 Contact Support
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+# ============================================================
+# E-commerce Chat & Voice Bot — Requirements
+# ============================================================
+
+# --- Core Web Framework ---
+Flask==2.2.4
+Flask-Session==0.5.0
+Werkzeug==2.2.3
+
+# --- Database ---
+Flask-MySQLdb==1.0.1
+mysqlclient==2.1.1
+PyMySQL==1.1.0
+
+# --- Environment & Config ---
+python-dotenv==1.0.0
+
+# --- LangChain (RAG Pipeline) ---
+langchain==0.3.15
+langchain-core
+langchain-community
+langchain-groq==0.2.4
+langchain-pinecone==0.2.2
+langchain-huggingface==0.3.1
+langchain-nvidia-ai-endpoints==0.3.8
+
+# --- Vector Store ---
+pinecone-client==3.0.0
+
+# --- LLM / AI APIs ---
+groq==0.16.0
+
+# --- Embeddings ---
+sentence-transformers==2.7.0
+huggingface-hub>=0.28.0
+
+# --- NLP Utilities ---
+numpy==1.26.4
+pandas==2.2.3
+
+# --- Production Server ---
+gunicorn
+
+# --- Misc Utils ---
+uuid
+requests==2.31.0

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cart — NexPC | PC Components Store</title>
+  <meta name="description" content="View your shopping cart and checkout for premium PC components.">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}">
+</head>
+<body>
+
+<!-- ── Navbar ───────────────────────────────────────────────── -->
+<nav class="navbar" id="mainNav">
+  <a href="/" class="nav-logo">
+    <div class="nav-logo-icon">🖥️</div>
+    <span class="nav-logo-text">Nex<span>PC</span></span>
+  </a>
+  <div class="nav-links">
+    <a href="/"               class="nav-link">Home</a>
+    <a href="/#about"         class="nav-link">About</a>
+    <a href="/#orders-returns"class="nav-link">Orders &amp; Returns</a>
+    <a href="/cart"           class="nav-link nav-cart" style="color:var(--accent-light)">
+      🛒 <span class="cart-badge" style="display:none">0</span>
+    </a>
+    <a href="/#contact"       class="nav-link">Contact</a>
+    <span id="navAuthArea" style="display:contents">
+      <a href="/login"    class="nav-link">Sign In</a>
+      <a href="/register" class="btn-nav-auth">Register →</a>
+    </span>
+  </div>
+</nav>
+
+<!-- ── Page Header ──────────────────────────────────────────── -->
+<div class="page-header">
+  <div class="breadcrumb">
+    <a href="/">Home</a> <span>›</span> <span>Cart</span>
+  </div>
+  <h1>Shopping <span>Cart</span></h1>
+  <p id="cartCountLabel">Loading your cart…</p>
+</div>
+
+<!-- ── Page Body ────────────────────────────────────────────── -->
+<div class="page-body two-col" id="cartPageBody">
+
+  <!-- LEFT: Items -->
+  <div>
+    <div id="cartItemsWrap" class="cart-items-wrap">
+      <!-- Populated by JS -->
+      <div class="empty-state" id="cartLoading">
+        <div class="empty-icon">⏳</div>
+        <p>Loading your cart…</p>
+      </div>
+    </div>
+
+    <!-- Cart actions -->
+    <div class="cart-actions" id="cartActions" style="display:none">
+      <button class="btn-clear" id="btnClearCart">🗑️ Clear Cart</button>
+      <a href="/" class="btn-continue">← Continue shopping</a>
+    </div>
+  </div>
+
+  <!-- RIGHT: Order summary -->
+  <aside>
+    <div class="order-summary-card" id="summaryCard">
+      <div class="order-summary-head">Order Summary</div>
+      <div class="order-summary-body">
+
+        <div class="summary-row">
+          <span>Subtotal (<span id="sumItemsCount">0</span> items)</span>
+          <span class="val" id="sumSubtotal">₹0</span>
+        </div>
+        <div class="summary-row">
+          <span>Tax (5% GST)</span>
+          <span class="val" id="sumTax">₹0</span>
+        </div>
+        <div class="summary-row">
+          <span>Shipping</span>
+          <span class="val" style="color:var(--green)">FREE</span>
+        </div>
+
+        <div class="summary-divider"></div>
+
+        <!-- Coupon -->
+        <div class="coupon-row">
+          <input type="text" id="couponInput" placeholder="Coupon code" autocomplete="off">
+          <button class="btn-coupon" id="btnCoupon">Apply</button>
+        </div>
+
+        <div class="summary-row total">
+          <span>Total</span>
+          <span class="val" id="sumTotal">₹0</span>
+        </div>
+
+        <button class="btn-checkout" id="btnCheckout" disabled>
+          🔒 Proceed to Checkout
+        </button>
+
+      </div>
+
+      <!-- Trust badges -->
+      <div class="trust-badges">
+        <span class="trust-badge"><span class="ti">🔒</span> Secure</span>
+        <span class="trust-badge"><span class="ti">↩️</span> 30-day Returns</span>
+        <span class="trust-badge"><span class="ti">🚚</span> Free Shipping</span>
+      </div>
+    </div>
+  </aside>
+
+</div>
+
+
+<!-- ══ CHECKOUT MODAL ════════════════════════════════════════════ -->
+<div class="checkout-overlay" id="checkoutOverlay">
+  <div class="checkout-panel">
+    <button class="checkout-close" id="checkoutClose">×</button>
+
+    <h2>Checkout</h2>
+    <p class="co-sub">Fill in your details to place the order.</p>
+
+    <form class="co-form" id="checkoutForm" novalidate>
+
+      <!-- Name + Email -->
+      <div class="co-row">
+        <div class="co-field">
+          <label for="coName">Full Name *</label>
+          <input type="text" id="coName" name="customer_name" placeholder="Arjun Kumar" required>
+        </div>
+        <div class="co-field">
+          <label for="coEmail">Email Address</label>
+          <input type="email" id="coEmail" name="customer_email" placeholder="you@example.com">
+        </div>
+      </div>
+
+      <!-- Phone -->
+      <div class="co-field">
+        <label for="coPhone">Phone Number</label>
+        <input type="tel" id="coPhone" name="customer_phone" placeholder="+91 98765 43210">
+      </div>
+
+      <!-- Address -->
+      <div class="co-field">
+        <label for="coAddress">Shipping Address *</label>
+        <textarea id="coAddress" name="shipping_address" rows="3"
+          placeholder="Door No, Street, City, State, PIN Code" required></textarea>
+      </div>
+
+      <!-- Payment Method -->
+      <div class="co-field">
+        <label>Payment Method</label>
+        <div class="pay-methods" id="payMethods">
+          <label class="pay-method selected">
+            <input type="radio" name="payment_method" value="cod" checked>
+            <span class="pay-method-icon">💵</span>
+            <span class="pay-method-label">Cash on Delivery</span>
+          </label>
+          <label class="pay-method">
+            <input type="radio" name="payment_method" value="upi">
+            <span class="pay-method-icon">📱</span>
+            <span class="pay-method-label">UPI</span>
+          </label>
+          <label class="pay-method">
+            <input type="radio" name="payment_method" value="card">
+            <span class="pay-method-icon">💳</span>
+            <span class="pay-method-label">Credit / Debit Card</span>
+          </label>
+          <label class="pay-method">
+            <input type="radio" name="payment_method" value="netbanking">
+            <span class="pay-method-icon">🏦</span>
+            <span class="pay-method-label">Net Banking</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Total box -->
+      <div class="co-total-box">
+        <span class="label">Order Total (incl. 5% GST)</span>
+        <span class="val" id="coTotalDisplay">₹0</span>
+      </div>
+
+      <button type="submit" class="btn-place-order" id="btnPlaceOrder">
+        <span class="btn-label">🛒 Place Order</span>
+        <span class="spinner"></span>
+      </button>
+
+    </form>
+  </div>
+</div>
+
+
+<!-- ── Toast ─────────────────────────────────────────────────── -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ── Scripts ───────────────────────────────────────────────── -->
+<script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+</body>
+</html>

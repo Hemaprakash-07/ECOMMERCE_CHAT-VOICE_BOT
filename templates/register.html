@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account — NexPC | AI-Powered PC Component Store</title>
+  <meta name="description" content="Create a free NexPC account to shop PC components with AI-powered recommendations.">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+</head>
+<body>
+
+  <div class="auth-container">
+
+    <!-- Brand -->
+    <div class="auth-brand">
+      <a href="/" class="auth-brand-logo">
+        <div class="auth-brand-icon">🖥️</div>
+        <span class="auth-brand-name">Nex<span>PC</span></span>
+      </a>
+    </div>
+
+    <!-- Card -->
+    <div class="auth-card">
+      <h1>Create your account</h1>
+      <p class="auth-subtitle">
+        Join NexPC — AI-powered shopping for CPUs, GPUs, RAM, SSDs &amp; more.
+      </p>
+
+      <!-- Global alert -->
+      <div id="authAlert" class="auth-alert" role="alert">
+        <span class="alert-icon">ℹ️</span>
+        <span class="alert-msg"></span>
+      </div>
+
+      <!-- Register Form -->
+      <form id="registerForm" class="auth-form" novalidate autocomplete="on">
+
+        <!-- Full Name -->
+        <div class="form-group" id="grpFullName">
+          <label for="fullName">Full Name</label>
+          <div class="input-wrapper">
+            <input
+              type="text"
+              id="fullName"
+              name="name"
+              placeholder="e.g. Arjun Kumar"
+              autocomplete="name"
+              required
+            >
+            <span class="input-icon">👤</span>
+          </div>
+          <span class="field-msg"></span>
+        </div>
+
+        <!-- Email + Phone (side by side on wide screens) -->
+        <div class="form-row">
+          <div class="form-group" id="grpEmail">
+            <label for="email">Email Address</label>
+            <div class="input-wrapper">
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="you@example.com"
+                autocomplete="email"
+                required
+              >
+              <span class="input-icon">📧</span>
+            </div>
+            <span class="field-msg"></span>
+          </div>
+
+          <div class="form-group" id="grpPhone">
+            <label for="phone">Phone <span style="color:var(--text-muted)">(optional)</span></label>
+            <div class="input-wrapper">
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                placeholder="+91 98765 43210"
+                autocomplete="tel"
+              >
+              <span class="input-icon">📱</span>
+            </div>
+            <span class="field-msg"></span>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group" id="grpPassword">
+          <label for="password">Password</label>
+          <div class="input-wrapper">
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Min 8 chars, 1 uppercase, 1 number"
+              autocomplete="new-password"
+              class="has-toggle"
+              required
+            >
+            <span class="input-icon">🔒</span>
+            <button type="button" class="toggle-pwd" aria-label="Toggle password visibility">👁️</button>
+          </div>
+          <!-- Strength bar -->
+          <div class="strength-bar"><div class="strength-bar-fill"></div></div>
+          <span class="strength-label"></span>
+          <span class="field-msg"></span>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-group" id="grpConfirm">
+          <label for="confirm_password">Confirm Password</label>
+          <div class="input-wrapper">
+            <input
+              type="password"
+              id="confirm_password"
+              name="confirm_password"
+              placeholder="Re-enter your password"
+              autocomplete="new-password"
+              class="has-toggle"
+              required
+            >
+            <span class="input-icon">🔒</span>
+            <button type="button" class="toggle-pwd" aria-label="Toggle password visibility">👁️</button>
+          </div>
+          <span class="field-msg"></span>
+        </div>
+
+        <!-- Terms checkbox -->
+        <div class="form-group">
+          <label class="checkbox-wrap" style="color:var(--text-secondary); font-size:13px;">
+            <input type="checkbox" id="agreeTerms" required>
+            I agree to the <a href="#" style="color:var(--accent);">Terms of Service</a>
+            &amp; <a href="#" style="color:var(--accent);">Privacy Policy</a>
+          </label>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" id="submitBtn" class="btn-auth">
+          <span class="btn-text">Create Account →</span>
+          <span class="btn-spinner"></span>
+        </button>
+
+      </form>
+
+      <!-- Divider -->
+      <div class="auth-divider" style="margin-top: 24px;">already have an account?</div>
+
+      <!-- Switch -->
+      <p class="auth-switch">
+        <a href="/login">← Sign in instead</a>
+      </p>
+    </div>
+
+  </div>
+
+  <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
+</body>
+</html>
