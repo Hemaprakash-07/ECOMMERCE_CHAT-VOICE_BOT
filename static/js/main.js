@@ -168,10 +168,20 @@ function renderProducts(products) {
   if (!grid) return;
 
   if (!products || !products.length) {
+    const isSearching = _currentSearchQuery && _currentSearchQuery.length > 0;
     grid.innerHTML = `
       <div class="products-empty">
-        <div class="empty-icon">🔍</div>
-        <p>No products found in this category.</p>
+        <div class="empty-icon">${isSearching ? "🔍" : "📦"}</div>
+        ${isSearching
+          ? `<p>No products found for <strong>"${_currentSearchQuery}"</strong>.</p>
+             <button onclick="clearSearch()"
+               style="margin-top:12px;padding:8px 20px;border:1px solid rgba(255,255,255,0.2);
+                      background:rgba(124,140,248,0.15);border-radius:8px;cursor:pointer;
+                      font-size:0.9rem;color:var(--accent,#7c8cf8);">
+               ✕ Clear Search
+             </button>`
+          : `<p>No products found in this category.</p>`
+        }
       </div>`;
     return;
   }
@@ -236,28 +246,28 @@ function getStaticProducts() {
   return [
     { id:1, brand:"Intel", name:"Core i9-14900K", category_name:"CPU / Processors",
       slug:"intel-i9-14900k", selling_price:39999, mrp:54999, rating:4.8, rating_count:1240,
-      specifications:{cores:"24C/32T", boost_clock:"6.0GHz", socket:"LGA1700"} },
+      specifications:'{"cores":"24C/32T","boost_clock":"6.0GHz","socket":"LGA1700"}' },
     { id:2, brand:"AMD", name:"Ryzen 9 7950X", category_name:"CPU / Processors",
       slug:"amd-ryzen9-7950x", selling_price:44999, mrp:59999, rating:4.9, rating_count:876,
-      specifications:{cores:"16C/32T", boost_clock:"5.7GHz", socket:"AM5"} },
+      specifications:'{"cores":"16C/32T","boost_clock":"5.7GHz","socket":"AM5"}' },
     { id:3, brand:"NVIDIA", name:"RTX 4090", category_name:"Graphics Cards",
       slug:"nvidia-rtx-4090", selling_price:149999, mrp:189999, rating:4.9, rating_count:532,
-      specifications:{vram:"24GB GDDR6X", boost_clock:"2.52GHz"} },
+      specifications:'{"vram":"24GB GDDR6X","boost_clock":"2.52GHz"}' },
     { id:4, brand:"NVIDIA", name:"RTX 4060", category_name:"Graphics Cards",
       slug:"nvidia-rtx-4060", selling_price:27999, mrp:34999, rating:4.6, rating_count:4120,
-      specifications:{vram:"8GB GDDR6", boost_clock:"2.46GHz"} },
+      specifications:'{"vram":"8GB GDDR6","boost_clock":"2.46GHz"}' },
     { id:5, brand:"Corsair", name:"Vengeance DDR5 32GB", category_name:"RAM / Memory",
       slug:"corsair-vengeance-ddr5-32gb", selling_price:8999, mrp:12999, rating:4.7, rating_count:1890,
-      specifications:{capacity:"32GB", type:"DDR5", speed:"5200MHz"} },
+      specifications:'{"capacity":"32GB","type":"DDR5","speed":"5200MHz"}' },
     { id:6, brand:"Samsung", name:"990 Pro NVMe 1TB", category_name:"SSD / Storage",
       slug:"samsung-990-pro-1tb", selling_price:8999, mrp:12999, rating:4.9, rating_count:3241,
-      specifications:{capacity:"1TB", interface:"PCIe 4.0", read:"7450 MB/s"} },
+      specifications:'{"capacity":"1TB","interface":"PCIe 4.0","read":"7450 MB/s"}' },
     { id:7, brand:"ASUS", name:"ROG Strix Z790-E WiFi", category_name:"Motherboards",
       slug:"asus-rog-strix-z790e", selling_price:34999, mrp:44999, rating:4.8, rating_count:643,
-      specifications:{socket:"LGA1700", chipset:"Z790", form_factor:"ATX"} },
+      specifications:'{"socket":"LGA1700","chipset":"Z790","form_factor":"ATX"}' },
     { id:8, brand:"AMD", name:"Ryzen 5 7600X", category_name:"CPU / Processors",
       slug:"amd-ryzen5-7600x", selling_price:18999, mrp:24999, rating:4.7, rating_count:2134,
-      specifications:{cores:"6C/12T", boost_clock:"5.3GHz", socket:"AM5"} },
+      specifications:'{"cores":"6C/12T","boost_clock":"5.3GHz","socket":"AM5"}' },
   ];
 }
 
@@ -416,26 +426,108 @@ function initCategoryTabs() {
 }
 
 // ── Search handler ────────────────────────────────────────────
+// Tracks active search term so empty-state can offer a "Clear" button
+let _currentSearchQuery = "";
+
+function clearSearch() {
+  const inp = $("#navSearch");
+  if (inp) inp.value = "";
+  _currentSearchQuery = "";
+  _hideSearchBadge();
+  $$(".cat-tab").forEach(t => t.classList.remove("active"));
+  $(".cat-tab[data-slug='all']")?.classList.add("active");
+  activeCategory = "all";
+  renderProducts(allProducts);
+}
+
+function _showSearchBadge(count, q) {
+  let badge = $("#searchResultBadge");
+  if (!badge) {
+    badge = document.createElement("div");
+    badge.id = "searchResultBadge";
+    badge.style.cssText = [
+      "display:flex","align-items:center","gap:10px",
+      "padding:8px 16px","margin-bottom:12px",
+      "background:var(--glass-bg,rgba(255,255,255,0.07))",
+      "border:1px solid var(--border,rgba(255,255,255,0.1))",
+      "border-radius:8px","font-size:0.85rem",
+      "color:var(--text-muted,#aaa)",
+    ].join(";");
+    const grid = $("#productsGrid");
+    if (grid && grid.parentNode) grid.parentNode.insertBefore(badge, grid);
+  }
+  const label = q.length > 24 ? q.slice(0, 24) + "…" : q;
+  badge.innerHTML = `
+    <span>🔍 Showing <strong style="color:var(--accent,#7c8cf8)">${count}</strong>
+      result${count !== 1 ? "s" : ""} for <em>"${label}"</em></span>
+    <button onclick="clearSearch()"
+      style="margin-left:auto;padding:4px 12px;border:1px solid rgba(255,255,255,0.2);
+             background:transparent;border-radius:6px;cursor:pointer;
+             font-size:0.8rem;color:inherit;">✕ Clear</button>`;
+  badge.style.display = "flex";
+}
+
+function _hideSearchBadge() {
+  const badge = $("#searchResultBadge");
+  if (badge) badge.style.display = "none";
+}
+
 function initSearch() {
   const inp = $("#navSearch");
   if (!inp) return;
+
   let timer;
+
   inp.addEventListener("input", () => {
     clearTimeout(timer);
     timer = setTimeout(() => {
-      const q   = inp.value.trim().toLowerCase();
-      const arr = q
-        ? allProducts.filter(p =>
-            p.name.toLowerCase().includes(q) ||
-            p.brand.toLowerCase().includes(q) ||
-            (p.category_name||"").toLowerCase().includes(q))
-        : allProducts;
-      // Reset active tab to "all"
+      const q = inp.value.trim();
+      _currentSearchQuery = q;
+
+      if (!q) {
+        _hideSearchBadge();
+        $$(".cat-tab").forEach(t => t.classList.remove("active"));
+        $(".cat-tab[data-slug='all']")?.classList.add("active");
+        activeCategory = "all";
+        renderProducts(allProducts);
+        return;
+      }
+
+      const ql = q.toLowerCase();
+      const filtered = allProducts.filter(p =>
+        (p.name          || "").toLowerCase().includes(ql) ||
+        (p.brand         || "").toLowerCase().includes(ql) ||
+        (p.category_name || "").toLowerCase().includes(ql) ||
+        (p.slug          || "").toLowerCase().includes(ql) ||
+        // Search inside specification values too (e.g. "AM4", "GDDR6", "NVMe")
+        (p.specifications && typeof p.specifications === "object" &&
+          Object.values(p.specifications).some(v =>
+            String(v).toLowerCase().includes(ql)
+          )
+        )
+      );
+
+      // Reset active tab
       $$(".cat-tab").forEach(t => t.classList.remove("active"));
       $(".cat-tab[data-slug='all']")?.classList.add("active");
       activeCategory = "all";
-      renderProducts(arr);
-    }, 280);
+
+      // Show result count badge above grid
+      _showSearchBadge(filtered.length, q);
+
+      renderProducts(filtered);
+
+      // Auto-scroll to products section
+      const grid = $("#productsGrid");
+      if (grid) setTimeout(() =>
+        grid.scrollIntoView({ behavior: "smooth", block: "start" }), 60);
+
+    }, 280);  // 280ms debounce
+  });
+
+  // Escape clears search
+  inp.addEventListener("keydown", e => {
+    if (e.key === "Escape") clearSearch();
   });
 }
 

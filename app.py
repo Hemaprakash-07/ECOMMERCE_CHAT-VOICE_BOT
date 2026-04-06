@@ -90,9 +90,9 @@ def create_app() -> Flask:
 
     @app.route("/chat", methods=["POST"])
     def chat():
-        data     = request.get_json(silent=True) or {}
-        question = (data.get("input") or "").strip()
-        lang     = data.get("lang", "en")       # "en" | "ta"
+        data       = request.get_json(silent=True) or {}
+        question   = (data.get("input") or "").strip()
+        lang       = data.get("lang", "en")   # "en" | "ta"
         session_id = session.get("chat_session", "chat_1")
 
         if not question:
@@ -100,6 +100,38 @@ def create_app() -> Flask:
 
         logging.info(f"[Chat] lang={lang} | Q: {question}")
 
+        # ── Step 1: Tamil detection & translation ────────────────────
+        english_query = question
+        try:
+            from src.utils.tamil_utils import is_tamil, translate_to_english
+            if is_tamil(question) or lang == "ta":
+                lang = "ta"
+                english_query = translate_to_english(question)
+                logging.info(f"[Chat] Tamil→EN: '{english_query[:60]}'")
+        except Exception as te:
+            logging.warning(f"[Chat] Tamil translation error: {te}")
+
+        # ── Step 2: DB-first response (FAQ / product lookup) ─────────
+        db_answer = None
+        try:
+            from src.utils.db_responder import get_db_response
+            db_answer = get_db_response(english_query, lang=lang)
+        except Exception as dbe:
+            logging.warning(f"[Chat] DB responder error: {dbe}")
+
+        if db_answer:
+            # Wrap with Tamil prefix if original query was Tamil
+            try:
+                from src.utils.tamil_utils import maybe_tamil_prefix
+                db_answer = maybe_tamil_prefix(db_answer, question)
+            except Exception:
+                pass
+
+            logging.info(f"[Chat] DB hit. Answer: {db_answer[:80]}")
+            _save_chat_log(session_id, question, db_answer, lang)
+            return jsonify({"response": db_answer}), 200
+
+        # ── Step 3: LLM / RAG fallback ───────────────────────────────
         bot = get_chatbot()
         if bot is None:
             return jsonify({
@@ -110,32 +142,38 @@ def create_app() -> Flask:
 
         try:
             config   = {"configurable": {"session_id": session_id}}
-            response = bot.invoke({"input": question}, config=config)
-            answer   = response.get("answer", "I couldn't find a relevant answer.")
-            logging.info(f"[Chat] A: {answer[:120]}...")
+            # For Tamil, send the translated English query to LLM
+            # but keep original Tamil in conversation context
+            llm_input = english_query if lang == "ta" else question
+            response  = bot.invoke({"input": llm_input}, config=config)
+            answer    = response.get("answer", "I couldn't find a relevant answer.")
+            logging.info(f"[Chat] LLM A: {answer[:120]}")
 
-            # Persist to DB (best-effort)
-            try:
-                from database.db import get_db
-                db  = get_db()
-                cur = db.cursor()
-                cur.execute(
-                    "INSERT INTO chat_logs (session_id, user_id, role, message, language) VALUES (%s,%s,%s,%s,%s)",
-                    (session_id, session.get("user_id"), "user", question, lang)
-                )
-                cur.execute(
-                    "INSERT INTO chat_logs (session_id, user_id, role, message, language) VALUES (%s,%s,%s,%s,%s)",
-                    (session_id, session.get("user_id"), "bot", answer, lang)
-                )
-                db.commit()
-            except Exception:
-                pass   # non-critical
-
+            _save_chat_log(session_id, question, answer, lang)
             return jsonify({"response": answer}), 200
 
         except Exception as exc:
             logging.error(f"Chat error: {exc}")
             return jsonify({"response": "Something went wrong. Please try again."}), 500
+
+
+    def _save_chat_log(session_id, question, answer, lang):
+        """Persist user + bot messages to chat_logs (best-effort)."""
+        try:
+            from database.db import get_db
+            db  = get_db()
+            cur = db.cursor()
+            cur.execute(
+                "INSERT INTO chat_logs (session_id, user_id, role, message, language) VALUES (%s,%s,%s,%s,%s)",
+                (session_id, session.get("user_id"), "user", question, lang)
+            )
+            cur.execute(
+                "INSERT INTO chat_logs (session_id, user_id, role, message, language) VALUES (%s,%s,%s,%s,%s)",
+                (session_id, session.get("user_id"), "bot", answer, lang)
+            )
+            db.commit()
+        except Exception:
+            pass  # non-critical
 
 
     @app.route("/chatbot", methods=["POST"])
@@ -168,27 +206,63 @@ def create_app() -> Flask:
     @app.route("/api/products", methods=["GET"])
     def api_products():
         from database.db import query_all
-        category = request.args.get("category")
+        category = request.args.get("category")       # category slug filter
+        q        = (request.args.get("q") or "").strip()  # text search
+        limit    = min(int(request.args.get("limit", 100)), 200)
+
+        params = []
+        where  = ["p.is_active = 1"]
+
         if category:
-            rows = query_all("""
-                SELECT p.*, c.name AS category_name
-                FROM products p JOIN categories c ON p.category_id = c.id
-                WHERE c.slug = %s AND p.is_active = 1
-                ORDER BY p.rating DESC
-            """, (category,))
-        else:
-            rows = query_all("""
-                SELECT p.*, c.name AS category_name
-                FROM products p JOIN categories c ON p.category_id = c.id
-                WHERE p.is_active = 1
-                ORDER BY c.id, p.rating DESC
-            """)
-        # Convert Decimal to float for JSON
+            where.append("c.slug = %s")
+            params.append(category)
+
+        if q:
+            # Server-side text search across name, brand, and category
+            like = f"%{q}%"
+            where.append(
+                "(LOWER(p.name) LIKE %s OR LOWER(p.brand) LIKE %s "
+                "OR LOWER(c.name) LIKE %s OR LOWER(p.slug) LIKE %s)"
+            )
+            params.extend([like, like, like, like])
+
+        where_clause = " AND ".join(where)
+        sql = f"""
+            SELECT p.*, c.name AS category_name
+            FROM products p JOIN categories c ON p.category_id = c.id
+            WHERE {where_clause}
+            ORDER BY p.rating DESC
+            LIMIT {limit}
+        """
+        rows = query_all(sql, params if params else ())
+
+        # Convert Decimal → float for JSON serialisation
         for r in rows:
             r["selling_price"] = float(r["selling_price"])
             r["mrp"]           = float(r["mrp"])
             r["rating"]        = float(r["rating"])
-        return jsonify({"success": True, "products": rows})
+
+        return jsonify({"success": True, "products": rows, "count": len(rows)})
+
+
+    @app.route("/api/faqs", methods=["GET"])
+    def api_faqs():
+        """Return all active FAQs, optionally filtered by category."""
+        from database.db import query_all
+        category = request.args.get("category")
+        if category:
+            rows = query_all(
+                "SELECT id, question, answer, category FROM faqs "
+                "WHERE is_active = 1 AND category = %s ORDER BY id",
+                (category,)
+            )
+        else:
+            rows = query_all(
+                "SELECT id, question, answer, category FROM faqs "
+                "WHERE is_active = 1 ORDER BY category, id",
+                ()
+            )
+        return jsonify({"success": True, "faqs": rows, "count": len(rows)})
 
 
     # Order tracking is handled by orders_bp → /api/orders/track
